@@ -7,6 +7,9 @@
         "debuglib.h": "c",
         "amikeycode.h": "c",
         "uefilib.h": "c",
-        "xutility": "c"
+        "xutility": "c",
+        "hiiimageex.h": "c",
+        "hiipackagelist.h": "c",
+        "uefibootservicestablelib.h": "c"
     }
 }

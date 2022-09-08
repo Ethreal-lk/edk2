@@ -48,3 +48,4 @@
 LkPkg/shellmain/shellmian.inf
 LkPkg/Lk_Logo/lk_logo.inf
 LkPkg/Library/ProtocolLib/ProtocolLib.inf
+LkPkg/Gui/Lk_GUI.inf
