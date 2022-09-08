@@ -47,10 +47,10 @@ typedef struct _EFI_HII_IMAGE_PROTOCOL EFI_HII_IMAGE_PROTOCOL;
    
 **/
 typedef struct _EFI_IMAGE_INPUT {
-  UINT32                          Flags;
+  UINT32                          Flags; //图像特征
   UINT16                          Width;
   UINT16                          Height;
-  EFI_GRAPHICS_OUTPUT_BLT_PIXEL   *Bitmap;
+  EFI_GRAPHICS_OUTPUT_BLT_PIXEL   *Bitmap; //图像点阵数据
 } EFI_IMAGE_INPUT;
 
 

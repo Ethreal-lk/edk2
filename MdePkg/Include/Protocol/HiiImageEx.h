@@ -239,11 +239,11 @@ EFI_STATUS
 ///
 struct _EFI_HII_IMAGE_EX_PROTOCOL {
   EFI_HII_NEW_IMAGE_EX      NewImageEx;
-  EFI_HII_GET_IMAGE_EX      GetImageEx;
-  EFI_HII_SET_IMAGE_EX      SetImageEx;
-  EFI_HII_DRAW_IMAGE_EX     DrawImageEx;
-  EFI_HII_DRAW_IMAGE_ID_EX  DrawImageIdEx;
-  EFI_HII_GET_IMAGE_INFO    GetImageInfo;
+  EFI_HII_GET_IMAGE_EX      GetImageEx;  //获取图像数据
+  EFI_HII_SET_IMAGE_EX      SetImageEx;  // 设置图像数据
+  EFI_HII_DRAW_IMAGE_EX     DrawImageEx; //渲染指定图像为位图或者渲染到屏幕
+  EFI_HII_DRAW_IMAGE_ID_EX  DrawImageIdEx; // 使用IMAGE ID 获取图像并渲染
+  EFI_HII_GET_IMAGE_INFO    GetImageInfo;  // 获取图像的信息
 };
 
 extern EFI_GUID gEfiHiiImageExProtocolGuid;

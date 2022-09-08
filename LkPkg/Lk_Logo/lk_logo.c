@@ -21,8 +21,9 @@
 #include <Library/UefiApplicationEntryPoint.h>
 #include  <AMI/ProtocolLib.h>
 EFI_GRAPHICS_OUTPUT_BLT_PIXEL color[] = {
-                                            {0, 0, 255, 0}, // red 
-                                            {250, 250, 255, 0} // snow
+                                            {0, 0, 255, 0},     // red 
+                                            {250, 250, 255, 0}, // snow
+                                            {255, 255 ,0}       // Cyan1
                                         };
 
 VOID Hline(
@@ -36,7 +37,7 @@ VOID Hline(
     minx = (x1 < x2) ? x1 : x2;
     maxx = (x1 > x2) ? x1 : x2;
     GraphicsOutput->Blt(GraphicsOutput, 
-                        colour,
+                        &colour[2],
                         EfiBltVideoFill,
                         0, 0,
                         minx, y,
@@ -106,6 +107,7 @@ UefiMain (
         Print(L"Current Mode =  %d\n" , GraphicsOutput->Mode->Mode);
         Print(L"Current HorizontalResolution =  %d Current VerticalResolution =  %d\n" , GraphicsOutput->Mode->Info->HorizontalResolution,\
                 GraphicsOutput->Mode->Info->VerticalResolution);
+        Print(L"Current PixelsPerScanLine =  %d\n" , GraphicsOutput->Mode->Info->PixelsPerScanLine);
         for (ModeIndex = 0; ModeIndex < GraphicsOutput->Mode->MaxMode; ModeIndex++) {
 
             Status = GraphicsOutput->QueryMode(
