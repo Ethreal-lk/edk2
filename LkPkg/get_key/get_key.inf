@@ -1,7 +1,7 @@
 [Defines]
 INF_VERSION                    = 0x00010005
-BASE_NAME                      = LkLogo
-FILE_GUID                      = 6987936E-ED34-44db-AE97-1FA5E4ED2119
+BASE_NAME                      = LK_GetKey
+FILE_GUID                      = 6987936E-ED34-44db-AE97-1FA5E4ED2118
 MODULE_TYPE                    = UEFI_APPLICATION
 VERSION_STRING                 = 1.0
 ENTRY_POINT                    = UefiMain
@@ -18,7 +18,7 @@ ENTRY_POINT                    = UefiMain
 # #
 
 [Sources]
-lk_logo.c
+get_key.c
 
 [Packages]
 MdePkg/MdePkg.dec
@@ -29,13 +29,3 @@ LkPkg/LkPkg.dec
 UefiApplicationEntryPoint
 UefiLib
 ProtocolLib
-
-# [FeaturePcd]
-#   gEfiMdeModulePkgTokenSpaceGuid.PcdHelloWorldPrintEnable   ## CONSUMES
-
-# [Pcd]
-#   gEfiMdeModulePkgTokenSpaceGuid.PcdHelloWorldPrintString   ## SOMETIMES_CONSUMES
-#   gEfiMdeModulePkgTokenSpaceGuid.PcdHelloWorldPrintTimes    ## SOMETIMES_CONSUMES
-
-# [UserExtensions.TianoCore."ExtraFiles"]
-#   HelloWorldExtra.uni
