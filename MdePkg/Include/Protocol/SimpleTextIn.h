@@ -105,7 +105,7 @@ EFI_STATUS
   @retval EFI_SUCCESS      The keystroke information was returned.
   @retval EFI_NOT_READY    There was no keystroke data available.
   @retval EFI_DEVICE_ERROR The keystroke information was not returned due to
-                           hardware errors.
+                          hardware errors.
 
 **/
 typedef

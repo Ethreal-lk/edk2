@@ -10,6 +10,8 @@
         "xutility": "c",
         "hiiimageex.h": "c",
         "hiipackagelist.h": "c",
-        "uefibootservicestablelib.h": "c"
+        "uefibootservicestablelib.h": "c",
+        "simpletextin.h": "c",
+        "simpletextinex.h": "c"
     }
 }

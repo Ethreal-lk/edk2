@@ -120,30 +120,31 @@
 //   return Status;
 // }
 
-// EFI_STATUS
-// OcHandleProtocolFallback (
-//   IN  EFI_HANDLE  Handle,
-//   IN  EFI_GUID    *Protocol,
-//   OUT VOID        **Interface
-//   )
-// {
-//   EFI_STATUS  Status;
+EFI_STATUS
+HandleProtocolFallback (
+  IN  EFI_HANDLE  Handle,
+  IN  EFI_GUID    *Protocol,
+  OUT VOID        **Interface
+  )
+{
+  EFI_STATUS  Status;
 
-//   Status = gBS->HandleProtocol (
-//                   Handle,
-//                   Protocol,
-//                   Interface
-//                   );
-//   if (EFI_ERROR (Status)) {
-//     Status = gBS->LocateProtocol (
-//                     Protocol,
-//                     NULL,
-//                     Interface
-//                     );
-//   }
+  Status = gBS->HandleProtocol (
+                  Handle,
+                  Protocol,
+                  Interface
+                  );
+  Print(L"HandleProtocol status = %r\n", Status);
+  if (EFI_ERROR (Status)) {
+    Status = gBS->LocateProtocol (
+                    Protocol,
+                    NULL,
+                    Interface
+                    );
+  }
 
-//   return Status;
-// }
+  return Status;
+}
 
 UINTN
 CountProtocolInstances (
@@ -153,7 +154,6 @@ CountProtocolInstances (
 {
   EFI_STATUS  Status;
   UINTN       HandleCount;
-
   HandleCount = 0;
 
   Status = gBS->LocateHandleBuffer (
