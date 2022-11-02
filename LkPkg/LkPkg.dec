@@ -31,3 +31,4 @@ Include
     
 [LibraryClasses]
 ProtocolLib|LkPkg/Include/AMI/ProtocolLib.h
+loglib|LkPkg/Include/AMI/Log.h

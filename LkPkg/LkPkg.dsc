@@ -41,7 +41,7 @@
   UefiRuntimeServicesTableLib|MdePkg/Library/UefiRuntimeServicesTableLib/UefiRuntimeServicesTableLib.inf
   ShellCEntryLib|ShellPkg/Library/UefiShellCEntryLib/UefiShellCEntryLib.inf
   ProtocolLib|LkPkg/Library/ProtocolLib/ProtocolLib.inf
-  
+  LogLib|LkPkg/Library/LogLib/loglib.inf
 [Components]
 #LkPkg/helloworld.inf
 # LkPkg/Protocol_Practice/Protocol_Practice.inf
@@ -51,3 +51,4 @@
 # LkPkg/Library/ProtocolLib/ProtocolLib.inf
 # LkPkg/Gui/Lk_GUI.inf
 LkPkg/get_key/get_key.inf
+# LkPkg/Library/LogLib/loglib.inf

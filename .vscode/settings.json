@@ -12,6 +12,7 @@
         "hiipackagelist.h": "c",
         "uefibootservicestablelib.h": "c",
         "simpletextin.h": "c",
-        "simpletextinex.h": "c"
+        "simpletextinex.h": "c",
+        "simplefilesystem.h": "c"
     }
 }

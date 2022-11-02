@@ -29,6 +29,7 @@ LkPkg/LkPkg.dec
 UefiApplicationEntryPoint
 UefiLib
 ProtocolLib
+LogLib
 
 [Protocols]
 gEfiSimpleTextInputExProtocolGuid

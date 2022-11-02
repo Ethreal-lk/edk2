@@ -4,6 +4,8 @@
 #include <Library/UefiRuntimeServicesTableLib.h>
 #include  <AMI/ProtocolLib.h>
 #include <Protocol/SimpleTextInEx.h>
+#include  <AMI/loglib.h>
+
 
 
 EFI_STATUS GetKey(EFI_INPUT_KEY *Key)
@@ -44,8 +46,8 @@ EFI_STATUS HotKeySample(
     EFI_HANDLE      HotkeyNotifyHandle;
     UINTN           Index;
 
-    Hotkey->KeyState.KeyShiftState |= EFI_SHIFT_STATE_VALID;   // ¿ØÖÆ¼üÓÐÐ§ 
-    Hotkey->KeyState.KeyToggleState |= EFI_TOGGLE_STATE_VALID | EFI_KEY_STATE_EXPOSED; // ÇÐ»»×´Ì¬¼üÓÐÐ§
+    Hotkey->KeyState.KeyShiftState |= EFI_SHIFT_STATE_VALID;   // ï¿½ï¿½ï¿½Æ¼ï¿½ï¿½ï¿½Ð§ 
+    Hotkey->KeyState.KeyToggleState |= EFI_TOGGLE_STATE_VALID | EFI_KEY_STATE_EXPOSED; // ï¿½Ð»ï¿½×´Ì¬ï¿½ï¿½ï¿½ï¿½Ð§
     Status = TextInputEx->RegisterKeyNotify(
                 TextInputEx,
                 Hotkey,
@@ -76,6 +78,11 @@ UefiMain(
     EFI_HANDLE      *Handles;
     UINTN           Index;
     // EFI_KEY_DATA                      KeyData;
+
+    #ifdef LOG
+        Print(L"UefiMain Entry!!!!\n");
+    #endif
+    Status = LogInitial(ImageHandle);
 
     EFI_SIMPLE_TEXT_INPUT_EX_PROTOCOL *TextInputEx;
     EFI_KEY_DATA myHotKey = {0,0};
