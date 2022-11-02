@@ -13,6 +13,7 @@
         "uefibootservicestablelib.h": "c",
         "simpletextin.h": "c",
         "simpletextinex.h": "c",
-        "simplefilesystem.h": "c"
+        "simplefilesystem.h": "c",
+        "loglib.h": "c"
     }
 }

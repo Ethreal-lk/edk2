@@ -51,4 +51,4 @@
 # LkPkg/Library/ProtocolLib/ProtocolLib.inf
 # LkPkg/Gui/Lk_GUI.inf
 LkPkg/get_key/get_key.inf
-# LkPkg/Library/LogLib/loglib.inf
+LkPkg/Feature/DrawLogo/DrawLogo.inf
