@@ -35,3 +35,6 @@ LogLib
 [Protocols]
 gEfiSimpleTextInputExProtocolGuid
 gEfiGraphicsOutputProtocolGuid
+
+[Guids]
+    gEfiFileInfoGuid

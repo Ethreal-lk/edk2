@@ -1,5 +1,8 @@
 #include  <AMI/loglib.h>
 #include "draw_logo.h"
+#include <Uefi/UefiSpec.h>
+#include <Uefi/UefiMultiPhase.h>
+
 
 
 
@@ -174,7 +177,6 @@ EFI_STATUS GetFileHandle(
 
     Print(L"SUCCESS:Volume is opened.\n");
     #endif
-    
     Status = Root->Open(
         Root,
         FileHandle,
@@ -190,12 +192,89 @@ EFI_STATUS GetFileHandle(
         Print(L"ERROR:Failed to open file.\n");
         return Status;
     }
-
     Print(L"SUCCESS:File is opened.\n");
     #endif
 
     return Status;
 } 
+EFI_STATUS ReadFile(
+    IN EFI_FILE_PROTOCOL *File,
+    OUT EFI_PHYSICAL_ADDRESS *FileBase
+)
+{
+    EFI_STATUS Status = EFI_SUCCESS;
+    EFI_FILE_INFO *FileInfo;
+
+    UINTN InfoSize = sizeof(EFI_FILE_INFO) + 128;
+    Status = gBS->AllocatePool(
+        EfiLoaderData,
+        InfoSize,
+        (VOID **)&FileInfo
+    );
+
+    #ifdef DEBUG
+    if(EFI_ERROR(Status))
+    {
+        Print(L"ERROR:Failed to AllocatePool for FileInfo.\n");
+        return Status;
+    }
+    Print(L"SUCCESS:Memory for FileInfo is ready.\n");
+    #endif
+
+    Status = File->GetInfo(
+        File,
+        &gEfiFileInfoGuid,
+        &InfoSize,
+        FileInfo
+    );
+    
+    #ifdef DEBUG
+    if(EFI_ERROR(Status))
+    {
+        Print(L"ERROR:Failed to GetInfo of Bmp.\n");
+        return Status;
+    }
+    Print(L"SUCCESS:FileInfo is getted.\n");
+    #endif
+    
+    UINTN FilePageSize = (UINTN)((FileInfo->FileSize >> 12) + 1);
+    Print(L"FilePageSize = %d\n", FilePageSize);
+    
+    EFI_PHYSICAL_ADDRESS FileBufferAddress;
+    Status = gBS->AllocatePages(
+        AllocateAnyPages,
+        EfiLoaderData,
+        FilePageSize,
+        &FileBufferAddress
+    );
+
+    #ifdef DEBUG
+    if(EFI_ERROR(Status))
+    {
+        Print(L"ERROR:Failed to AllocatePages for File.\n");
+        return Status;
+    }
+    Print(L"SUCCESS:Memory for File is ready.\n");
+    #endif
+    UINTN ReadSize = (UINTN)FileInfo->FileSize;
+    // Status = File->Read(
+    //     File,
+    //     &ReadSize,
+    //     Addr_Ptr 
+    // );
+    #ifdef DEBUG
+    // if(EFI_ERROR(Status))
+    // {
+    //     Print(L"ERROR:Failed to Read File.\n");
+    //     return Status;
+    // }
+    Print(L"SUCCESS:File is readed,size=%d.\n", ReadSize);
+    #endif
+    gBS->FreePool(FileInfo);
+    *FileBase = FileBufferAddress;
+    return Status;
+}
+
 EFI_STATUS DrawLogo(
     IN EFI_HANDLE ImageHandle,
     IN EFI_GRAPHICS_OUTPUT_PROTOCOL *Gop
@@ -215,8 +294,9 @@ EFI_STATUS DrawLogo(
     }
     EFI_FILE_PROTOCOL *Logo;
     Status = GetFileHandle(ImageHandle, FileName, &Logo);
-    // EFI_PHYSICAL_ADDRESS LogoAddress;
-    // Status = ReadFile(Logo, &LogoAddress);
+
+    EFI_PHYSICAL_ADDRESS LogoAddress;
+    Status = ReadFile(Logo, &LogoAddress);
 
     // BMP_CONFIG BmpConfig;
     // Status = BmpTransform(LogoAddress, &BmpConfig);
