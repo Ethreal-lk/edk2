@@ -117,6 +117,117 @@ EFI_STATUS VideoInit(
     
     return Status;
 }
+EFI_STATUS GetFileHandle(
+    IN EFI_HANDLE ImageHandle,
+    IN CHAR16 *FileName,
+    OUT EFI_FILE_PROTOCOL **FileHandle
+)
+{
+    EFI_STATUS Status = EFI_SUCCESS;
+    UINTN HandleCount = 0;
+    EFI_HANDLE *HandleBuffer;
+    Status = gBS->LocateHandleBuffer(
+        ByProtocol,
+        &gEfiSimpleFileSystemProtocolGuid,
+        NULL,
+        &HandleCount,
+        &HandleBuffer
+    );
+    #ifdef DEBUG
+    if(EFI_ERROR(Status))
+    {
+        Print(L"ERROR:Failed to LocateHanleBuffer of SimpleFileSystemProtocol.\n");
+        return Status;
+    }
+    Print(L"SUCCESS:Get %d handles that supported SimpleFileSystemProtocol.\n", HandleCount);
+    #endif
+    EFI_SIMPLE_FILE_SYSTEM_PROTOCOL *FileSystem;
+    Status = gBS->OpenProtocol(
+        HandleBuffer[0],
+        &gEfiSimpleFileSystemProtocolGuid,
+        (VOID **)&FileSystem,
+        ImageHandle,
+        NULL,
+        EFI_OPEN_PROTOCOL_GET_PROTOCOL
+    );
+    #ifdef DEBUG
+    if(EFI_ERROR(Status))
+    {
+        Print(L"ERROR:Failed to open first handle that supported SimpleFileSystemProtocol.\n");
+        return Status;
+    }
+
+    Print(L"SUCCESS:SimpleFileSystemProtocol is opened with first handle.\n");
+    #endif
+    
+    EFI_FILE_PROTOCOL *Root;
+    Status = FileSystem->OpenVolume(
+        FileSystem,
+        &Root
+    );
+    #ifdef DEBUG
+    if(EFI_ERROR(Status))
+    {
+        Print(L"ERROR:Failed to open volume.\n");
+        return Status;
+    }
+
+    Print(L"SUCCESS:Volume is opened.\n");
+    #endif
+    
+    Status = Root->Open(
+        Root,
+        FileHandle,
+        FileName, // L"\\Logo.bmp"
+        EFI_FILE_MODE_READ | EFI_FILE_MODE_WRITE,
+        EFI_OPEN_PROTOCOL_GET_PROTOCOL
+    );
+
+
+    #ifdef DEBUG
+    if(EFI_ERROR(Status))
+    {
+        Print(L"ERROR:Failed to open file.\n");
+        return Status;
+    }
+
+    Print(L"SUCCESS:File is opened.\n");
+    #endif
+
+    return Status;
+} 
+EFI_STATUS DrawLogo(
+    IN EFI_HANDLE ImageHandle,
+    IN EFI_GRAPHICS_OUTPUT_PROTOCOL *Gop
+)
+{
+    EFI_STATUS Status = EFI_SUCCESS;
+    CHAR16 *FileName = L"\\Logo.bmp"; 
+    UINTN Hor = Gop->Mode->Info->HorizontalResolution;
+    UINTN Ver = Gop->Mode->Info->VerticalResolution;
+    #ifdef DEBUG
+        Print(L"DrawLogo: Hor = %d  Ver = %d \n", Hor, Ver);
+    #endif
+    if(Hor * 3 == Ver * 4)
+    {
+        // FileName = L"\\Narrow.BMP";
+        // Print(L"Narrow BMP\n");
+    }
+    EFI_FILE_PROTOCOL *Logo;
+    Status = GetFileHandle(ImageHandle, FileName, &Logo);
+    // EFI_PHYSICAL_ADDRESS LogoAddress;
+    // Status = ReadFile(Logo, &LogoAddress);
+
+    // BMP_CONFIG BmpConfig;
+    // Status = BmpTransform(LogoAddress, &BmpConfig);
+
+    // UINTN X = (Hor - BmpConfig.Width) / 2;
+    // UINTN Y = (Ver - BmpConfig.Height) / 2;
+
+    // Status = DrawBmp(Gop, BmpConfig, X, Y);
+    
+    return Status;
+}
 EFI_STATUS
 EFIAPI
 UefiMain(
@@ -153,7 +264,10 @@ UefiMain(
     {
         LogTip("Video is good now.\n");
     }
-    #endif    
+    #endif  
+
+
+    Status = DrawLogo(ImageHandle, Gop);
     
 
 
