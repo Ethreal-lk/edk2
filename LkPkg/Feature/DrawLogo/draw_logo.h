@@ -1,7 +1,7 @@
 #include <Library/BaseMemoryLib.h>
 #include <Uefi.h>
 #include <Protocol/GraphicsOutput.h>
-
+#include <Guid/FileInfo.h>
 typedef struct
 {
     EFI_PHYSICAL_ADDRESS       FrameBufferBase;
