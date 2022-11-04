@@ -7,7 +7,21 @@
 
 
 EFI_GRAPHICS_OUTPUT_BLT_PIXEL Grey = {166, 166, 166, 0};
+UINTN GetValue(
+    IN UINT8 *StartAddress,
+    IN UINTN Offset,
+    IN UINTN Size
+)
+{
 
+    UINT8 *ByteStart = StartAddress + Offset;
+    UINTN Result = 0;
+    for(UINTN i = 0; i < Size; i++)
+    {
+        Result += *(ByteStart + i) << i * 8;
+    }
+    return Result;
+}
 EFI_STATUS GetGopHandle(
     IN EFI_HANDLE ImageHandle,
     OUT EFI_GRAPHICS_OUTPUT_PROTOCOL **Gop
@@ -199,11 +213,12 @@ EFI_STATUS GetFileHandle(
 } 
 EFI_STATUS ReadFile(
     IN EFI_FILE_PROTOCOL *File,
-    OUT EFI_PHYSICAL_ADDRESS *FileBase
+    OUT UINT8           **FileBase
 )
 {
-    EFI_STATUS Status = EFI_SUCCESS;
-    EFI_FILE_INFO *FileInfo;
+    EFI_STATUS      Status = EFI_SUCCESS;
+    EFI_FILE_INFO   *FileInfo;
+    UINT8           *Buffer;
 
     UINTN InfoSize = sizeof(EFI_FILE_INFO) + 128;
     Status = gBS->AllocatePool(
@@ -236,43 +251,118 @@ EFI_STATUS ReadFile(
     }
     Print(L"SUCCESS:FileInfo is getted.\n");
     #endif
-    
-    UINTN FilePageSize = (UINTN)((FileInfo->FileSize >> 12) + 1);
-    Print(L"FilePageSize = %d\n", FilePageSize);
-    
-    EFI_PHYSICAL_ADDRESS FileBufferAddress;
-    Status = gBS->AllocatePages(
-        AllocateAnyPages,
-        EfiLoaderData,
-        FilePageSize,
-        &FileBufferAddress
-    );
 
+
+    Status = gBS->AllocatePool(EfiReservedMemoryType, (UINTN)FileInfo->FileSize,(VOID**)&Buffer);
+    #ifdef DEBUG
+        if(EFI_ERROR(Status))
+        {
+            Print(L"ERROR:Failed to AllocatePool for File.\n");
+            return Status;
+        }
+        Print(L"SUCCESS:Memory for File is ready. Memory address = 0x%0x\n", Buffer);
+    #endif
+
+    // UINTN FilePageSize = (UINTN)((FileInfo->FileSize >> 12) + 1);
+    // Print(L"FilePageSize = %d\n", FilePageSize);
+    
+    // EFI_PHYSICAL_ADDRESS FileBufferAddress;
+    // Status = gBS->AllocatePages(
+    //     AllocateAnyPages,
+    //     EfiLoaderData,
+    //     FilePageSize,
+    //     &FileBufferAddress
+    // );
+
+    // #ifdef DEBUG
+    // if(EFI_ERROR(Status))
+    // {
+    //     Print(L"ERROR:Failed to AllocatePages for File.\n");
+    //     return Status;
+    // }
+    // Print(L"SUCCESS:Memory for File is ready.\n");
+    // #endif
+    UINTN ReadSize = (UINTN)FileInfo->FileSize;
+    Status = File->Read(
+        File,
+        &ReadSize,
+        Buffer 
+    );
     #ifdef DEBUG
     if(EFI_ERROR(Status))
     {
-        Print(L"ERROR:Failed to AllocatePages for File.\n");
+        Print(L"ERROR:Failed to Read File.\n");
         return Status;
     }
-    Print(L"SUCCESS:Memory for File is ready.\n");
-    #endif
-    UINTN ReadSize = (UINTN)FileInfo->FileSize;
-    // Status = File->Read(
-    //     File,
-    //     &ReadSize,
-    //     Addr_Ptr 
-    // );
-    #ifdef DEBUG
-    // if(EFI_ERROR(Status))
-    // {
-    //     Print(L"ERROR:Failed to Read File.\n");
-    //     return Status;
-    // }
     Print(L"SUCCESS:File is readed,size=%d.\n", ReadSize);
     #endif
     gBS->FreePool(FileInfo);
-    *FileBase = FileBufferAddress;
+    *FileBase = Buffer;
     return Status;
+}
+UINT8* BmpTransform(
+    IN  UINT8       *BmpBase,
+    OUT BMP_CONFIG  *BmpConfig
+)    
+{  
+    EFI_STATUS Status = EFI_SUCCESS;
+    // Not used, just for example
+    struct bmp_header *bheader = (struct bmp_header *)BmpBase;
+    Print(L"File size = %08lx.\n", bheader->file_size);
+    BmpConfig->Size = GetValue(BmpBase, 0x02, 4);
+    BmpConfig->PageSize = (BmpConfig->Size >> 12) + 1;
+    BmpConfig->Offset = GetValue(BmpBase, 0x0A, 4);
+    
+    BmpConfig->Width = GetValue(BmpBase, 0x12, 4);
+    BmpConfig->Height = GetValue(BmpBase, 0x16, 4);
+    UINT8           *PixelBuffer;
+    Status = gBS->AllocatePool(EfiReservedMemoryType, BmpConfig->Size,(VOID**)&PixelBuffer);
+    #ifdef DEBUG
+        if(EFI_ERROR(Status))
+        {
+            Print(L"ERROR:Failed to AllocatePages for PixelArea.\n");
+        }
+        Print(L"SUCCESS:Memory for PixelArea is ready. PixelBuffer memory address = 0x%0x\n", PixelBuffer);
+        Print(L"SUCESS :Allocate PixelBuffer memory size = %d\n", BmpConfig->Size);
+    #endif
+    // EFI_PHYSICAL_ADDRESS PixelStart;
+    // Status = gBS->AllocatePages(
+    //     AllocateAnyPages,
+    //     EfiLoaderData,
+    //     BmpConfig->PageSize,
+    //     &PixelStart
+    // );
+
+    // #ifdef DEBUG
+    // if(EFI_ERROR(Status))
+    // {
+    //     Print(L"ERROR:Failed to AllocatePages for PixelArea.\n");
+    //     return Status;
+    // }
+    // Print(L"SUCCESS:Memory for PixelArea is ready.\n");
+    // #endif
+
+    EFI_GRAPHICS_OUTPUT_BLT_PIXEL *PixelFromFile= NULL;
+    PixelFromFile = (EFI_GRAPHICS_OUTPUT_BLT_PIXEL *)(BmpBase 
+                                                    + BmpConfig->Offset 
+                                                    + BmpConfig->Width * BmpConfig->Height * 4);
+    EFI_GRAPHICS_OUTPUT_BLT_PIXEL *PixelToBuffer = NULL;
+    
+    PixelToBuffer= (EFI_GRAPHICS_OUTPUT_BLT_PIXEL *)PixelBuffer;
+
+    for(UINTN i = 0; i < BmpConfig->Height; i++)
+    {
+        PixelFromFile -= BmpConfig->Width;
+        for(UINTN j = 0; j < BmpConfig->Width; j++)
+        {
+            *PixelToBuffer = *PixelFromFile;
+            PixelToBuffer++;
+            PixelFromFile++;
+        }
+        PixelFromFile -= BmpConfig->Width;
+    }
+
+    return PixelBuffer;
 }
 
 EFI_STATUS DrawLogo(
@@ -284,6 +374,7 @@ EFI_STATUS DrawLogo(
     CHAR16 *FileName = L"\\Logo.bmp"; 
     UINTN Hor = Gop->Mode->Info->HorizontalResolution;
     UINTN Ver = Gop->Mode->Info->VerticalResolution;
+    UINT8 * PixelStart;
     #ifdef DEBUG
         Print(L"DrawLogo: Hor = %d  Ver = %d \n", Hor, Ver);
     #endif
@@ -295,11 +386,12 @@ EFI_STATUS DrawLogo(
     EFI_FILE_PROTOCOL *Logo;
     Status = GetFileHandle(ImageHandle, FileName, &Logo);
 
-    EFI_PHYSICAL_ADDRESS LogoAddress;
+    UINT8  *LogoAddress;
     Status = ReadFile(Logo, &LogoAddress);
-
-    // BMP_CONFIG BmpConfig;
-    // Status = BmpTransform(LogoAddress, &BmpConfig);
+    Print(L"lk LogoAddress = 0x%0x\n", LogoAddress);
+    BMP_CONFIG BmpConfig;
+    PixelStart = BmpTransform(LogoAddress, &BmpConfig);
+    Print(L"BmpConfig->PixelStart = 0x%0x\n", PixelStart);
 
     // UINTN X = (Hor - BmpConfig.Width) / 2;
     // UINTN Y = (Ver - BmpConfig.Height) / 2;
