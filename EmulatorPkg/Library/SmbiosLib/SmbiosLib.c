@@ -221,7 +221,7 @@ SmbiosLibUpdateUnicodeString (
   }
 
   UnicodeStrToAsciiStrS (String, Ascii, StrSize (String));
-
+ DEBUG((EFI_D_ERROR,"lk  %a\n", Ascii));
   StringIndex = StringNumber;
   Status      = gSmbios->UpdateString (gSmbios, &SmbiosHandle, &StringIndex, Ascii);
 
@@ -320,6 +320,16 @@ SmbiosLibRemove (
   return gSmbios->Remove (gSmbios, SmbiosHandle);
 }
 
+VOID
+EFIAPI
+SmbiosNotifyfunc (
+  IN  EFI_EVENT  Event,
+  IN  VOID       *Context
+  )
+  {
+    DEBUG((EFI_D_ERROR,"lk SmbiosNotifyfunc entry\n" ));
+  }
+
 /**
 
   @param  ImageHandle  ImageHandle of the loaded driver.
@@ -335,5 +345,18 @@ SmbiosLibConstructor (
   IN EFI_SYSTEM_TABLE  *SystemTable
   )
 {
-  return gBS->LocateProtocol (&gEfiSmbiosProtocolGuid, NULL, (VOID **)&gSmbios);
+    EFI_STATUS Status;
+
+    VOID* SmbiosRegistration;
+    Status = gBS->LocateProtocol (&gEfiSmbiosProtocolGuid, NULL, (VOID **)&gSmbios);
+  
+    EfiCreateProtocolNotifyEvent (
+      &gEfiSmbiosProtocolGuid,
+      TPL_CALLBACK,
+      SmbiosNotifyfunc,
+      NULL,
+      &SmbiosRegistration
+      );
+    DEBUG((EFI_D_ERROR,"LocateProtocol gEfiSmbiosProtocolGuid status = %r\n",Status ));
+    return Status;
 }

@@ -88,7 +88,7 @@ PlatformSmbiosDriverEntryPoint (
   EFI_STATUS                Status;
   EFI_SMBIOS_HANDLE         SmbiosHandle;
   SMBIOS_STRUCTURE_POINTER  Smbios;
-
+  CHAR8 *SetString = "lk test string";
   // Phase 0 - Patch table to make SMBIOS 2.7 structures smaller to conform
   //           to an early version of the specification.
 
@@ -99,7 +99,16 @@ PlatformSmbiosDriverEntryPoint (
   // Phase 2 - Patch SMBIOS table entries
 
   Smbios.Hdr = SmbiosLibGetRecord (EFI_SMBIOS_TYPE_BIOS_INFORMATION, 0, &SmbiosHandle);
+  Status = SmbiosLibUpdateString(SmbiosHandle,2, SetString);
+  DEBUG((EFI_D_ERROR,"lk SmbiosLibUpdateString Status = %r\n", Status));
+  DEBUG((EFI_D_ERROR,"lk  %a\n", SetString));
+      SmbiosLibUpdateUnicodeString (
+      SmbiosHandle,
+      Smbios.Type0->BiosVersion,
+      (CHAR16 *)PcdGetPtr (PcdFirmwareVersionString)
+      );
   if (Smbios.Type0 != NULL) {
+    DEBUG((EFI_D_ERROR,"lk SmbiosLibUpdateString 111\n"));
     // 64K * (n+1) bytes
     Smbios.Type0->BiosSize = (UINT8)DivU64x32 (FixedPcdGet64 (PcdEmuFirmwareFdSize), 64*1024) - 1;
 

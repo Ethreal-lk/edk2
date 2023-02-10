@@ -1726,7 +1726,7 @@
 
   ## Null-terminated Unicode string that describes the firmware version.
   # @Prompt Firmware version string.
-  gEfiMdeModulePkgTokenSpaceGuid.PcdFirmwareVersionString|L""|VOID*|0x00010052
+  gEfiMdeModulePkgTokenSpaceGuid.PcdFirmwareVersionString|L"smbiostext"|VOID*|0x00010052
 
   ## Null-terminated Unicode string that contains the date the firmware was released
   # @Prompt Firmware release data string.
